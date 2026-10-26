@@ -57,3 +57,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+/// <summary>
+/// Entry point, exposed as a partial class so <c>WebApplicationFactory&lt;Program&gt;</c> can target it in tests.
+/// </summary>
+public partial class Program;
