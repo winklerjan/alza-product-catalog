@@ -70,4 +70,34 @@ public sealed class ProductsController(IProductService productService) : Control
         var result = await productService.GetPageAsync(query.Page, query.PageSize, ct);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Updates a product's description.
+    /// </summary>
+    /// <param name="id">The product id.</param>
+    /// <param name="request">The new description.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <response code="200">The updated product.</response>
+    /// <response code="400">The description is too long.</response>
+    /// <response code="404">No product exists with the given id.</response>
+    [HttpPatch("{id:int}")]
+    [MapToApiVersion("1.0")]
+    [MapToApiVersion("2.0")]
+    [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProductDto>> PatchDescription(
+        int id, UpdateProductDescriptionRequest request, CancellationToken ct)
+    {
+        var product = await productService.UpdateDescriptionAsync(id, request.Description, ct);
+        if (product is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Product not found",
+                detail: $"No product exists with id {id}.");
+        }
+
+        return Ok(product);
+    }
 }

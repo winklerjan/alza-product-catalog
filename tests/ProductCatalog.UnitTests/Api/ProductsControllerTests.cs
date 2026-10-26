@@ -92,4 +92,33 @@ public class ProductsControllerTests
         okResult.Value.ShouldBe(page);
         await _productService.Received(1).GetPageAsync(3, 5, Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task PatchDescription_ProductExists_ReturnsOkWithUpdatedProduct()
+    {
+        var updated = CreateDto(1) with { Description = "Updated." };
+        _productService.UpdateDescriptionAsync(1, "Updated.", Arg.Any<CancellationToken>()).Returns(updated);
+
+        var result = await _sut.PatchDescription(
+            1, new UpdateProductDescriptionRequest { Description = "Updated." }, CancellationToken.None);
+
+        var okResult = result.Result.ShouldBeOfType<OkObjectResult>();
+        okResult.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        okResult.Value.ShouldBe(updated);
+    }
+
+    [Fact]
+    public async Task PatchDescription_ProductMissing_ReturnsNotFoundProblemDetails()
+    {
+        _productService.UpdateDescriptionAsync(999, "x", Arg.Any<CancellationToken>()).Returns((ProductDto?)null);
+
+        var result = await _sut.PatchDescription(
+            999, new UpdateProductDescriptionRequest { Description = "x" }, CancellationToken.None);
+
+        var objectResult = result.Result.ShouldBeOfType<ObjectResult>();
+        objectResult.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        var problemDetails = objectResult.Value.ShouldBeOfType<ProblemDetails>();
+        problemDetails.Title.ShouldBe("Product not found");
+        problemDetails.Detail.ShouldBe("No product exists with id 999.");
+    }
 }
