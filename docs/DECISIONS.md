@@ -38,9 +38,9 @@
 ## Versioning
 
 - Date: 2026-10-26
-- Decision: `Asp.Versioning.Mvc` + `Asp.Versioning.Mvc.ApiExplorer`, URL segment versioning (`/api/v{version}/products`).
-- Alternatives rejected: header or query-string versioning.
-- Rationale: URL segment versioning is the most discoverable and explicit option, and shows up clearly in Swagger.
+- Decision: `Asp.Versioning.Mvc` + `Asp.Versioning.Mvc.ApiExplorer`, URL segment versioning (`/api/v{version}/products`). A request for a syntactically valid but unsupported version (e.g. `/api/v3/products`) returns 404, not 400.
+- Alternatives rejected: header or query-string versioning; a hand-written fallback route to force a 400 response for unsupported versions.
+- Rationale: URL segment versioning is the most discoverable and explicit option, and shows up clearly in Swagger. The library's documented default for unsupported versions is 400, but verified in practice this does not apply to attribute-routed MVC controllers; 404 was accepted instead of adding bespoke routing code to force 400, since "this version of the resource doesn't exist" is itself a reasonable 404.
 
 ## Swagger
 
