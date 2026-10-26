@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using ProductCatalog.Api.Controllers;
+using ProductCatalog.Api.Models;
 using ProductCatalog.Application;
 using Shouldly;
 
@@ -64,5 +65,31 @@ public class ProductsControllerTests
         var problemDetails = objectResult.Value.ShouldBeOfType<ProblemDetails>();
         problemDetails.Title.ShouldBe("Product not found");
         problemDetails.Detail.ShouldBe("No product exists with id 999.");
+    }
+
+    [Fact]
+    public async Task GetPage_DefaultQuery_ForwardsDefaultsToService()
+    {
+        var page = new PagedResult<ProductDto>([CreateDto(1)], Page: 1, PageSize: 10, TotalCount: 1);
+        _productService.GetPageAsync(1, 10, Arg.Any<CancellationToken>()).Returns(page);
+
+        var result = await _sut.GetPage(new PaginationQuery(), CancellationToken.None);
+
+        var okResult = result.Result.ShouldBeOfType<OkObjectResult>();
+        okResult.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        okResult.Value.ShouldBe(page);
+    }
+
+    [Fact]
+    public async Task GetPage_CustomQuery_ForwardsValuesToService()
+    {
+        var page = new PagedResult<ProductDto>([CreateDto(3)], Page: 3, PageSize: 5, TotalCount: 11);
+        _productService.GetPageAsync(3, 5, Arg.Any<CancellationToken>()).Returns(page);
+
+        var result = await _sut.GetPage(new PaginationQuery { Page = 3, PageSize = 5 }, CancellationToken.None);
+
+        var okResult = result.Result.ShouldBeOfType<OkObjectResult>();
+        okResult.Value.ShouldBe(page);
+        await _productService.Received(1).GetPageAsync(3, 5, Arg.Any<CancellationToken>());
     }
 }

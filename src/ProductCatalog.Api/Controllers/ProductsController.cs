@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using ProductCatalog.Api.Models;
 using ProductCatalog.Application;
 
 namespace ProductCatalog.Api.Controllers;
@@ -9,6 +10,7 @@ namespace ProductCatalog.Api.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
+[ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/products")]
 public sealed class ProductsController(IProductService productService) : ControllerBase
 {
@@ -35,6 +37,7 @@ public sealed class ProductsController(IProductService productService) : Control
     /// <response code="404">No product exists with the given id.</response>
     [HttpGet("{id:int}")]
     [MapToApiVersion("1.0")]
+    [MapToApiVersion("2.0")]
     [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductDto>> GetById(int id, CancellationToken ct)
@@ -49,5 +52,22 @@ public sealed class ProductsController(IProductService productService) : Control
         }
 
         return Ok(product);
+    }
+
+    /// <summary>
+    /// Lists available products, one page at a time.
+    /// </summary>
+    /// <param name="query">The page number and page size.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <response code="200">The requested page of available products.</response>
+    /// <response code="400">The page or page size is out of range.</response>
+    [HttpGet]
+    [MapToApiVersion("2.0")]
+    [ProducesResponseType<PagedResult<ProductDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PagedResult<ProductDto>>> GetPage([FromQuery] PaginationQuery query, CancellationToken ct)
+    {
+        var result = await productService.GetPageAsync(query.Page, query.PageSize, ct);
+        return Ok(result);
     }
 }
