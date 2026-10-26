@@ -12,15 +12,15 @@ public sealed class InMemoryProductRepository : IProductRepository
 
     public Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct)
     {
-        IReadOnlyList<Product> result = _products.Values.OrderBy(p => p.Id).Select(Clone).ToList();
+        IReadOnlyList<Product> result = AvailableOrderedById().Select(Clone).ToList();
         return Task.FromResult(result);
     }
 
     public Task<PagedResult<Product>> GetPageAsync(int page, int pageSize, CancellationToken ct)
     {
-        var ordered = _products.Values.OrderBy(p => p.Id).ToList();
-        IReadOnlyList<Product> items = ordered.Skip((page - 1) * pageSize).Take(pageSize).Select(Clone).ToList();
-        return Task.FromResult(new PagedResult<Product>(items, page, pageSize, ordered.Count));
+        var available = AvailableOrderedById().ToList();
+        IReadOnlyList<Product> items = available.Skip((page - 1) * pageSize).Take(pageSize).Select(Clone).ToList();
+        return Task.FromResult(new PagedResult<Product>(items, page, pageSize, available.Count));
     }
 
     public Task<Product?> GetByIdAsync(int id, CancellationToken ct)
@@ -35,6 +35,9 @@ public sealed class InMemoryProductRepository : IProductRepository
         return Task.CompletedTask;
     }
 
+    private IEnumerable<Product> AvailableOrderedById() =>
+        _products.Values.Where(p => p.IsAvailable).OrderBy(p => p.Id);
+
     private static Product Clone(Product product) =>
-        new(product.Id, product.Name, product.ImgUri, product.Price, product.Description);
+        new(product.Id, product.Name, product.ImgUri, product.Price, product.Description, product.IsAvailable);
 }

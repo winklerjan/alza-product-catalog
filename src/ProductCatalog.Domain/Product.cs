@@ -7,14 +7,16 @@ public sealed class Product
     public string ImgUri { get; private set; }
     public decimal Price { get; private set; }
     public string? Description { get; private set; }
+    public bool IsAvailable { get; private set; }
 
-    public Product(int id, string name, string imgUri, decimal price, string? description)
+    public Product(int id, string name, string imgUri, decimal price, string? description, bool isAvailable = true)
     {
         Id = id;
         Name = ValidateName(name);
         ImgUri = ValidateImgUri(imgUri);
         Price = ValidatePrice(price);
         Description = NormalizeDescription(description);
+        IsAvailable = isAvailable;
     }
 
     private Product()

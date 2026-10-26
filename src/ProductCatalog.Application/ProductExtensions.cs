@@ -5,5 +5,5 @@ namespace ProductCatalog.Application;
 public static class ProductExtensions
 {
     public static ProductDto ToDto(this Product product) =>
-        new(product.Id, product.Name, product.ImgUri, product.Price, product.Description);
+        new(product.Id, product.Name, product.ImgUri, product.Price, product.Description, product.IsAvailable);
 }

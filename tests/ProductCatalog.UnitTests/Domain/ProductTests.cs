@@ -19,6 +19,17 @@ public class ProductTests
         product.ImgUri.ShouldBe(ValidImgUri);
         product.Price.ShouldBe(ValidPrice);
         product.Description.ShouldBe("A description.");
+        product.IsAvailable.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Constructor_IsAvailableExplicit_SetsProperty(bool isAvailable)
+    {
+        var product = new Product(1, ValidName, ValidImgUri, ValidPrice, null, isAvailable);
+
+        product.IsAvailable.ShouldBe(isAvailable);
     }
 
     [Theory]

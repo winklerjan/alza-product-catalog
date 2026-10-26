@@ -1,5 +1,12 @@
 # Architectural decisions
 
+## Product availability
+
+- Date: 2026-10-26
+- Decision: `Product` gets an `IsAvailable` flag. The list endpoints (v1 and v2) return only available products; `GET /products/{id}` and the description PATCH are unaffected by availability. `IsAvailable` is exposed in the API response.
+- Alternatives rejected: treating "available" as every product in the catalog (no filtering); a full stock-quantity model with a computed availability flag.
+- Rationale: the assignment asks for an endpoint to "list all available products," which implies some products can be unavailable. A plain boolean is the simplest model that satisfies this without the added complexity of stock tracking, which remains a possible stretch goal.
+
 ## Runtime
 
 - Date: 2026-10-26

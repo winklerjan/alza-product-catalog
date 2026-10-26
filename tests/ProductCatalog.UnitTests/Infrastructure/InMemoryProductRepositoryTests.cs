@@ -8,13 +8,16 @@ public class InMemoryProductRepositoryTests
 {
     private readonly InMemoryProductRepository _sut = new();
 
+    private static readonly int[] AvailableIds =
+        ProductSeedData.All.Where(p => p.IsAvailable).Select(p => p.Id).OrderBy(id => id).ToArray();
+
     [Fact]
-    public async Task GetAllAsync_ReturnsAllSeedProductsOrderedById()
+    public async Task GetAllAsync_ReturnsOnlyAvailableSeedProductsOrderedById()
     {
         var result = await _sut.GetAllAsync(CancellationToken.None);
 
-        result.Count.ShouldBe(ProductSeedData.All.Count);
-        result.Select(p => p.Id).ShouldBe(result.Select(p => p.Id).OrderBy(id => id));
+        result.Select(p => p.Id).ShouldBe(AvailableIds);
+        result.ShouldAllBe(p => p.IsAvailable);
     }
 
     [Fact]
@@ -23,18 +26,18 @@ public class InMemoryProductRepositoryTests
         var result = await _sut.GetPageAsync(1, 10, CancellationToken.None);
 
         result.Items.Count.ShouldBe(10);
-        result.Items.Select(p => p.Id).ShouldBe(Enumerable.Range(1, 10));
-        result.TotalCount.ShouldBe(ProductSeedData.All.Count);
-        result.TotalPages.ShouldBe(3);
+        result.Items.Select(p => p.Id).ShouldBe(AvailableIds.Take(10));
+        result.TotalCount.ShouldBe(AvailableIds.Length);
     }
 
     [Fact]
     public async Task GetPageAsync_LastPartialPage_ReturnsRemainingItems()
     {
-        var result = await _sut.GetPageAsync(3, 10, CancellationToken.None);
+        var lastPage = (int)Math.Ceiling(AvailableIds.Length / 10.0);
 
-        result.Items.Count.ShouldBe(5);
-        result.Items.Select(p => p.Id).ShouldBe(Enumerable.Range(21, 5));
+        var result = await _sut.GetPageAsync(lastPage, 10, CancellationToken.None);
+
+        result.Items.Select(p => p.Id).ShouldBe(AvailableIds.Skip((lastPage - 1) * 10));
     }
 
     [Fact]
@@ -43,7 +46,7 @@ public class InMemoryProductRepositoryTests
         var result = await _sut.GetPageAsync(100, 10, CancellationToken.None);
 
         result.Items.ShouldBeEmpty();
-        result.TotalCount.ShouldBe(ProductSeedData.All.Count);
+        result.TotalCount.ShouldBe(AvailableIds.Length);
     }
 
     [Fact]
@@ -53,6 +56,17 @@ public class InMemoryProductRepositoryTests
 
         result.ShouldNotBeNull();
         result.Id.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_UnavailableId_StillReturnsProduct()
+    {
+        var unavailableId = ProductSeedData.All.First(p => !p.IsAvailable).Id;
+
+        var result = await _sut.GetByIdAsync(unavailableId, CancellationToken.None);
+
+        result.ShouldNotBeNull();
+        result.IsAvailable.ShouldBeFalse();
     }
 
     [Fact]

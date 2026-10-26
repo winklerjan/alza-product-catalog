@@ -17,8 +17,8 @@ public class ProductServiceTests
         _sut = new ProductService(_repository, _logger);
     }
 
-    private static Product CreateProduct(int id = 1, string? description = "Original.") =>
-        new(id, "Widget", "https://placehold.co/600x400?text=Widget", 9.99m, description);
+    private static Product CreateProduct(int id = 1, string? description = "Original.", bool isAvailable = true) =>
+        new(id, "Widget", "https://placehold.co/600x400?text=Widget", 9.99m, description, isAvailable);
 
     [Fact]
     public async Task GetAllAsync_ReturnsMappedDtos()
@@ -66,6 +66,17 @@ public class ProductServiceTests
 
         result.ShouldNotBeNull();
         result.Id.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_UnavailableProduct_ReturnsDtoWithIsAvailableFalse()
+    {
+        _repository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(CreateProduct(1, isAvailable: false));
+
+        var result = await _sut.GetByIdAsync(1, CancellationToken.None);
+
+        result.ShouldNotBeNull();
+        result.IsAvailable.ShouldBeFalse();
     }
 
     [Fact]
