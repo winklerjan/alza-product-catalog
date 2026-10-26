@@ -86,6 +86,7 @@ Data source is chosen by configuration, `Persistence:Provider` = `SqlServer` or 
 
 ## Working rules for agents
 
+- For C# symbol navigation (find references, go to definition, checking the impact of a rename or signature change), use the LSP tool, not grep. Use grep for text search and non-C# files.
 - Keep changes small and focused on the task. Mention unrelated improvements instead of making them.
 - Before finishing: `dotnet build` with zero warnings and `dotnet test` green.
 - Do not add NuGet packages without stating why. Use the latest stable version compatible with `net10.0`, checked rather than guessed.
