@@ -1,0 +1,24 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+*.user
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.DotSettings.user
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+
+# EF Core tooling
+*.dbmdl
+
+# User-specific config overrides
+appsettings.*.local.json
+.env
+
+# OS files
+.DS_Store
