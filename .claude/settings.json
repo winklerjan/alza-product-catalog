@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet format:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(dotnet list:*)",
+      "Bash(dotnet package search:*)",
+      "Bash(dotnet tool restore:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(docker compose ps:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(curl -s http://localhost:*)",
+      "Bash(curl -sk https://localhost:*)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet tool install:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker compose down:*)",
+      "Edit(.claude/**)",
+      "Write(.claude/**)",
+      "Edit(CLAUDE.md)",
+      "Write(CLAUDE.md)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git rebase:*)",
+      "Bash(git clean:*)",
+      "Bash(git config:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-bash.sh" }
+        ]
+      },
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-files.sh" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-cs.sh", "timeout": 60 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/build-on-stop.sh", "timeout": 300 }
+        ]
+      }
+    ]
+  }
+}
