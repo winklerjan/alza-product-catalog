@@ -1,8 +1,11 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ProductCatalog.Application;
 using ProductCatalog.Infrastructure.Mock;
+using ProductCatalog.Infrastructure.Persistence;
 
 namespace ProductCatalog.Infrastructure;
 
@@ -21,13 +24,21 @@ public static class DependencyInjection
                 PersistenceOptions.SectionName, typeof(PersistenceOptions),
                 [$"Missing configuration section '{PersistenceOptions.SectionName}'."]);
 
-        services.AddSingleton<IProductRepository>(provider switch
+        switch (provider)
         {
-            PersistenceProvider.Mock => new InMemoryProductRepository(),
-            PersistenceProvider.SqlServer => throw new NotSupportedException(
-                "SQL Server persistence is not implemented yet."),
-            _ => throw new ArgumentOutOfRangeException(nameof(configuration), provider, "Unsupported persistence provider.")
-        });
+            case PersistenceProvider.Mock:
+                services.AddSingleton<IProductRepository, InMemoryProductRepository>();
+                break;
+            case PersistenceProvider.SqlServer:
+                var connectionString = configuration.GetConnectionString("ProductCatalog")
+                    ?? throw new InvalidOperationException("Missing connection string 'ProductCatalog'.");
+                services.AddDbContext<ProductCatalogDbContext>(options => options.UseSqlServer(connectionString));
+                services.AddScoped<IProductRepository, SqlProductRepository>();
+                services.AddHostedService<MigrateOnStartupHostedService>();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(configuration), provider, "Unsupported persistence provider.");
+        }
 
         return services;
     }

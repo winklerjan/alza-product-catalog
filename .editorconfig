@@ -29,3 +29,7 @@ indent_size = 2
 
 [*.{cmd,ps1}]
 end_of_line = crlf
+
+[**/Migrations/*.cs]
+csharp_style_namespace_declarations = block_scoped:silent
+dotnet_diagnostic.CA1861.severity = silent
