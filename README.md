@@ -67,8 +67,7 @@ Server=(localdb)\mssqllocaldb;Database=ProductCatalog;Trusted_Connection=True;Tr
 dotnet run --project src/ProductCatalog.Api --launch-profile Mock
 ```
 
-Uses an in-memory repository seeded with the same data as the SQL Server path. Swagger opens
-automatically at `https://localhost:7165/swagger`.
+Uses an in-memory repository seeded with the same data as the SQL Server path. Swagger is at `https://localhost:7165/swagger`.
 
 ## Switching data source
 
