@@ -3,9 +3,9 @@
 ## Product availability
 
 - Date: 2026-10-26
-- Decision: `Product` gets an `IsAvailable` flag. The list endpoints (v1 and v2) return only available products; `GET /products/{id}` and the description PATCH are unaffected by availability. `IsAvailable` is exposed in the API response.
-- Alternatives rejected: treating "available" as every product in the catalog (no filtering); a full stock-quantity model with a computed availability flag.
-- Rationale: the assignment asks for an endpoint to "list all available products," which implies some products can be unavailable. A plain boolean is the simplest model that satisfies this without the added complexity of stock tracking, which remains a possible stretch goal.
+- Decision: `Product` gets a stored `IsAvailable` flag, not a value derived from stock quantity. The list endpoints (v1 and v2) filter to available products only, including `totalCount`/`totalPages` in v2. `GET /products/{id}` and the description PATCH are unaffected by availability — fetching or patching an unavailable product still returns 200 (with `isAvailable: false`), never 404, so direct links and partial updates don't break just because something is delisted. `IsAvailable` is exposed in the API response.
+- Alternatives rejected: treating "available" as every product in the catalog (no filtering); a `StockQuantity` field with a computed availability flag.
+- Rationale: the assignment asks for an endpoint to "list all available products," which implies some products can be unavailable. A stored flag models this as a business status (listed, delisted, discontinued, pre-order) rather than an inventory count — in a real e-shop, stock typically lives in a separate inventory system, and the catalog owning a simple availability flag fits that boundary better than tracking quantity itself.
 
 ## Runtime
 
