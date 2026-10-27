@@ -113,4 +113,18 @@ See [Architecture](#architecture) above. Architectural decisions and their reaso
 
 ## Development process
 
+I developed this on Arch Linux in JetBrains Rider, since full Visual Studio isn't available there. I verified that the solution builds, runs and passes all tests in VS Code (C# Dev Kit) and with the plain `dotnet` CLI, so it doesn't depend on Rider. `.vscode/` contains launch and task configs for F5 debugging.
+
+I built it with Claude Code as an implementation agent. My approach:
+
+- **Decisions first.** Before writing any code, I decided the architecture, versioning strategy, error handling, pagination contract and data layer approach. They're recorded with their rationale in [`docs/DECISIONS.md`](docs/DECISIONS.md).
+- **Small, reviewed steps.** The work was split into slices: scaffold, domain, application layer, persistence, endpoints, tests and so on. For each slice the agent proposed a plan, I approved or adjusted it, then reviewed the full diff and ran the app before committing. The commit history follows those slices.
+- **Guardrails.** [`CLAUDE.md`](CLAUDE.md) holds the conventions the agent follows. `.claude/settings.json` restricts which commands it can run, and hooks block destructive git and shell commands, protect generated migrations and secrets, and make sure the solution builds before the agent hands work back.
+- **Independent review.** Before finishing, a separate reviewer agent with no context from the implementation reviewed the code against the requirements, and I verified the repo from a fresh clone by following this README.
+
+Where I overrode the agent's suggestions:
+
+- **Product availability.** The agent framed this as a binary choice: either every product counts as "available," or "available" means in-stock, which would have needed a `StockQuantity` field and computed logic. I specified a third option: a stored `IsAvailable` flag, modeling availability as a business status (listed, delisted, discontinued) rather than an inventory count — closer to how a real e-shop separates its catalog from its inventory system. See "Product availability" in `docs/DECISIONS.md`.
+- **Dropped the architecture-test stretch goal.** The agent built a full test suite (ArchUnitNET) enforcing every layer-to-layer dependency rule. I had it removed: most of those rules are already enforced by the project-reference graph itself — a circular reference between layers fails at build time, before any test runs — so most of the suite was testing the compiler, not the code. I kept the scope to what actually needed a test to catch.
+
 <!-- Written by Jan. -->
