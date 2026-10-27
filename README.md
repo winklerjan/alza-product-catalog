@@ -1,5 +1,7 @@
 # ProductCatalog
 
+[![CI](https://github.com/winklerjan/alza-web-api-app/actions/workflows/ci.yml/badge.svg)](https://github.com/winklerjan/alza-web-api-app/actions/workflows/ci.yml)
+
 A REST API for an e-shop product catalog: listing products, retrieving a single product, and
 updating a product's description.
 

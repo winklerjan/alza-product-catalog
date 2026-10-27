@@ -97,3 +97,10 @@
 - Date: 2026-10-26
 - Decision: `.editorconfig`, nullable reference types enabled, warnings treated as errors, latest recommended analysis level, Central Package Management for NuGet versions.
 - Rationale: catches correctness and style issues at build time instead of in review, and keeps dependency versions consistent across projects.
+
+## Continuous integration
+
+- Date: 2026-10-27
+- Decision: a GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`: restore the local tool manifest, restore NuGet packages, build, run the full test suite (`--report-xunit-trx`, results uploaded as a workflow artifact), and a status badge in the README.
+- Alternatives rejected: no CI at all; running Docker-based database tests in CI — skipped since the test suite has no Docker-dependent tests (the SQL Server repository has no automated coverage; see "Mock vs. database").
+- Rationale: build and test verification should happen automatically on every push, not rely on a human remembering to run `dotnet test` before merging.
