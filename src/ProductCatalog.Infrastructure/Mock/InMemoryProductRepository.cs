@@ -19,7 +19,10 @@ public sealed class InMemoryProductRepository : IProductRepository
     public Task<PagedResult<Product>> GetPageAsync(int page, int pageSize, CancellationToken ct)
     {
         var available = AvailableOrderedById().ToList();
-        IReadOnlyList<Product> items = available.Skip((page - 1) * pageSize).Take(pageSize).Select(Clone).ToList();
+        var skip = (long)(page - 1) * pageSize;
+        IReadOnlyList<Product> items = skip >= available.Count
+            ? []
+            : available.Skip((int)skip).Take(pageSize).Select(Clone).ToList();
         return Task.FromResult(new PagedResult<Product>(items, page, pageSize, available.Count));
     }
 

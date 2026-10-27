@@ -13,7 +13,14 @@ public sealed class SqlProductRepository(ProductCatalogDbContext dbContext) : IP
     {
         var query = AvailableOrderedById();
         var totalCount = await query.CountAsync(ct);
-        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+
+        var skip = (long)(page - 1) * pageSize;
+        if (skip >= totalCount)
+        {
+            return new PagedResult<Product>([], page, pageSize, totalCount);
+        }
+
+        var items = await query.Skip((int)skip).Take(pageSize).ToListAsync(ct);
         return new PagedResult<Product>(items, page, pageSize, totalCount);
     }
 

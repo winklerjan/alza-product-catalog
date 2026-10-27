@@ -50,6 +50,15 @@ public class InMemoryProductRepositoryTests
     }
 
     [Fact]
+    public async Task GetPageAsync_PageTimesPageSizeOverflowsInt_ReturnsEmptyItems()
+    {
+        var result = await _sut.GetPageAsync(int.MaxValue, 100, CancellationToken.None);
+
+        result.Items.ShouldBeEmpty();
+        result.TotalCount.ShouldBe(AvailableIds.Length);
+    }
+
+    [Fact]
     public async Task GetByIdAsync_ExistingId_ReturnsProduct()
     {
         var result = await _sut.GetByIdAsync(1, CancellationToken.None);

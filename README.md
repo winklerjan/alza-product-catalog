@@ -90,6 +90,11 @@ between the v1 and v2 documents.
 | GET | `/api/v{1,2}/products/{id}` | 1.0, 2.0 | `curl https://localhost:7165/api/v1/products/1` |
 | PATCH | `/api/v{1,2}/products/{id}` | 1.0, 2.0 | `curl -X PATCH https://localhost:7165/api/v1/products/1 -H "Content-Type: application/json" -d "{\"description\":\"New description\"}"` |
 
+The two list endpoints only return products where `isAvailable` is `true`. Getting or patching a
+product by id is unaffected by availability — an unavailable product is still returned (with
+`isAvailable: false`), just not listed. See the "Product availability" entry in
+[`docs/DECISIONS.md`](docs/DECISIONS.md) for why.
+
 All error responses are RFC 9457 Problem Details (`application/problem+json`).
 
 ## Running tests
