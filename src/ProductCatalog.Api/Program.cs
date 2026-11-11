@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using ProductCatalog.Api;
 using ProductCatalog.Api.Swagger;
 using ProductCatalog.Application;
 using ProductCatalog.Infrastructure;
@@ -25,6 +26,7 @@ builder.Services
 
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddApplication();
@@ -57,8 +59,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-/// <summary>
-/// Entry point, exposed as a partial class so <c>WebApplicationFactory&lt;Program&gt;</c> can target it in tests.
-/// </summary>
-public partial class Program;

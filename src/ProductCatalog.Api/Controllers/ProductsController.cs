@@ -25,7 +25,7 @@ public sealed class ProductsController(IProductService productService) : Control
     public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAll(CancellationToken ct)
     {
         var products = await productService.GetAllAsync(ct);
-        return Ok(products);
+        return Ok(products.Select(p => p.ToDto()).ToList());
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public sealed class ProductsController(IProductService productService) : Control
                 detail: $"No product exists with id {id}.");
         }
 
-        return Ok(product);
+        return Ok(product.ToDto());
     }
 
     /// <summary>
@@ -68,7 +68,8 @@ public sealed class ProductsController(IProductService productService) : Control
     public async Task<ActionResult<PagedResult<ProductDto>>> GetPage([FromQuery] PaginationQuery query, CancellationToken ct)
     {
         var result = await productService.GetPageAsync(query.Page, query.PageSize, ct);
-        return Ok(result);
+        var items = result.Items.Select(p => p.ToDto()).ToList();
+        return Ok(new PagedResult<ProductDto>(items, result.Page, result.PageSize, result.TotalCount));
     }
 
     /// <summary>
@@ -98,6 +99,6 @@ public sealed class ProductsController(IProductService productService) : Control
                 detail: $"No product exists with id {id}.");
         }
 
-        return Ok(product);
+        return Ok(product.ToDto());
     }
 }

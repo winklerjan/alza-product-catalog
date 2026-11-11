@@ -1,29 +1,29 @@
 using Microsoft.Extensions.Logging;
+using ProductCatalog.Domain;
 
 namespace ProductCatalog.Application;
 
 public sealed partial class ProductService(IProductRepository repository, ILogger<ProductService> logger) : IProductService
 {
-    public async Task<IReadOnlyList<ProductDto>> GetAllAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<IReadOnlyProduct>> GetAllAsync(CancellationToken ct)
     {
         var products = await repository.GetAllAsync(ct);
-        return products.Select(p => p.ToDto()).ToList();
+        return products;
     }
 
-    public async Task<PagedResult<ProductDto>> GetPageAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<PagedResult<IReadOnlyProduct>> GetPageAsync(int page, int pageSize, CancellationToken ct)
     {
         var result = await repository.GetPageAsync(page, pageSize, ct);
-        var items = result.Items.Select(p => p.ToDto()).ToList();
-        return new PagedResult<ProductDto>(items, result.Page, result.PageSize, result.TotalCount);
+        return new PagedResult<IReadOnlyProduct>(result.Items, result.Page, result.PageSize, result.TotalCount);
     }
 
-    public async Task<ProductDto?> GetByIdAsync(int id, CancellationToken ct)
+    public async Task<IReadOnlyProduct?> GetByIdAsync(int id, CancellationToken ct)
     {
         var product = await repository.GetByIdAsync(id, ct);
-        return product?.ToDto();
+        return product;
     }
 
-    public async Task<ProductDto?> UpdateDescriptionAsync(int id, string? description, CancellationToken ct)
+    public async Task<IReadOnlyProduct?> UpdateDescriptionAsync(int id, string? description, CancellationToken ct)
     {
         var product = await repository.GetByIdAsync(id, ct);
         if (product is null)
@@ -36,7 +36,7 @@ public sealed partial class ProductService(IProductRepository repository, ILogge
 
         LogDescriptionUpdated(logger, id);
 
-        return product.ToDto();
+        return product;
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Updated description for product {ProductId}")]

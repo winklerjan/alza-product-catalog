@@ -1,6 +1,6 @@
 namespace ProductCatalog.Domain;
 
-public sealed class Product
+public sealed class Product : IReadOnlyProduct
 {
     public int Id { get; private set; }
     public string Name { get; private set; }
